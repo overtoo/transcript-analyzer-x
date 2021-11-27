@@ -1,5 +1,5 @@
 ---
-title: "Australia"
+title: "Australia (no json)"
 description: "46. 台灣的日常習慣但在澳洲看了很奇怪 Taiwanese Daily Habits That Are Considered Weird in Australia"
 date: "2021-07-28"
 ---

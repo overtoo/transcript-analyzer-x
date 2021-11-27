@@ -54,7 +54,7 @@
   { "text": "就可以去看一下活動辦法要怎麼得到哦。", "index": 49 },
   { "text": " ", "index": 50 },
   { "text": "$break$", "index": 51 },
-  { "text": "02:40 ", "index": 52, "fixedTime": 160 },
+  { "text": "02:40 ", "index": 52, "fixedTime": 100 },
   { "text": "$break$", "index": 53 },
   { "text": "好，", "index": 54 },
   { "text": "那我們就開始今天的節目吧。", "index": 55 },
@@ -359,11 +359,6 @@
   {
     "text": "本週謝謝來自英國的 Amy 在 Apple podcasts 給我的五星評論 💚 ",
     "index": 348,
-    "fixedTime": 960
-  },
-  {
-    "text": "$break$",
-    "index": 349,
-    "fixedTime": 4530
+    "fixedTime": 4517
   }
 ]

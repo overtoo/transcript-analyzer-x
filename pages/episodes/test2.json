@@ -1,0 +1,46 @@
+[
+  { "text": "$break$", "index": 3, "guessStamp": [0, 18] },
+  { "text": "首先，", "index": 4, "fixedTime": 18, "guessStamp": [18, 20.9] },
+  {
+    "text": "一開始我想要跟大家說一個活動，",
+    "index": 5,
+    "guessStamp": [20.9, 24.2]
+  },
+  {
+    "text": "那就是我的 podcast 節目，",
+    "index": 6,
+    "guessStamp": [24.2, 26.7]
+  },
+  {
+    "text": "這個節目已經快要滿一年了。",
+    "index": 7,
+    "guessStamp": [26.7, 27.3]
+  },
+  { "text": "天啊。", "index": 8, "guessStamp": [27.3, 31.4] },
+  {
+    "text": "我從去年 2020 年 8 月 19 號，",
+    "index": 9,
+    "guessStamp": [31.4, 33.5]
+  },
+  { "text": "我上傳了第一集的節目，", "index": 10, "guessStamp": [33.5, 36] },
+  {
+    "text": "然後到現在已經快要一年了。",
+    "index": 11,
+    "guessStamp": [36, 37.5]
+  },
+  { "text": "真的很不可思議。", "index": 12, "guessStamp": [37.5, 38.9] },
+  { "text": "一年說長不長，", "index": 13, "guessStamp": [38.9, 39.9] },
+  { "text": "說短不短，", "index": 14, "guessStamp": [39.9, 41.8] },
+  { "text": "讓我覺得哇蠻感動的。", "index": 15, "guessStamp": [41.8, 45.5] },
+  {
+    "text": "所以我想要來辦一個 Q&#x26;A，",
+    "index": 16,
+    "guessStamp": [45.5, 48]
+  },
+  {
+    "text": "如果你有任何的問題，",
+    "index": 17,
+    "fixedTime": 48,
+    "guessStamp": [48, 52.7]
+  }
+]

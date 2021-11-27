@@ -141,7 +141,163 @@ export function Transcript2({ text, getCurrentTime }) {
   );
 }
 
-export function Transcript3({ postData, allPostsData, getCurrentTime }) {
+function generateTimeStamps(sentences) {
+  // console.table(finalArray);
+  let start = 0;
+  let end;
+  let finalArray = [];
+  let charCountTotal = 0;
+  let charCountFromFixed = 0;
+  let charCountAtNextFixed = 0;
+  let charCountAtNextFixedBefore = 0;
+  let stringIgnore = "$break$";
+  let stamps = [];
+
+  function countChinese(str) {
+    const re = /[一-龥]/g;
+    return ((str || "").match(re) || []).length;
+  }
+
+  function roundMe(number) {
+    return Math.round(number * 10) / 10;
+  }
+
+  for (let i = 0; i < sentences.length; i++) {
+    if (sentences[i].fixedTime > -1) {
+      charCountFromFixed = 0;
+      start = sentences[i].fixedTime;
+
+      for (let j = i + 1; j < sentences.length; j++) {
+        if (sentences[j].text != "$break$") {
+          charCountAtNextFixed += countChinese(sentences[j].text);
+          charCountAtNextFixedBefore += countChinese(sentences[j - 1].text);
+        }
+        if (sentences[j].fixedTime > -1) {
+          end = sentences[j].fixedTime;
+          break;
+        }
+      }
+    }
+    if (sentences[i].text != stringIgnore) {
+      charCountTotal += countChinese(sentences[i].text);
+      charCountFromFixed += countChinese(sentences[i].text);
+    }
+
+    let unRoundedformula =
+      (charCountFromFixed / charCountAtNextFixedBefore) * (end - start) + start;
+
+    let formula = Math.round(unRoundedformula * 10) / 10;
+
+    if (formula) {
+      stamps.push(formula);
+    } else stamps.push(0);
+
+    finalArray.push({
+      ...sentences[i],
+      length: countChinese(sentences[i].text),
+      // charCountTotal,
+      // charCountFromFixed,
+      // start,
+      // end,
+      guessStamp: [stamps[i - 1], stamps[i]],
+      guessStampString: JSON.stringify([stamps[i - 1], stamps[i]]),
+      // formula,
+      // charCountAtNextFixed,
+      // lengthSeconds: roundMe(stamps[i] - stamps[i - 1]),
+      // stamps: stamps[i],
+      // charCountAtNextFixedBefore,
+    });
+  }
+
+  // console.table(finalArray);
+  return finalArray;
+}
+
+function generateTimeStampsOld(sentences) {
+  let finalArray = [];
+
+  let start;
+  let end;
+  let charSoFar;
+  let charTotal;
+  let stamps = [];
+  for (let i = 0; i < sentences.length; i++) {
+    if (sentences[i].fixedTime > -1) {
+      charSoFar = 0;
+      charTotal = sentences[i].text.length;
+      start = sentences[i].fixedTime;
+
+      for (let j = i + 1; j < sentences.length; j++) {
+        // console.log(charTotal);
+        if (sentences[j].text != "$break$") {
+          charTotal += sentences[j].text.length;
+        } else {
+          // console.log(charTotal, j, sentences[j].text);
+        }
+        if (sentences[j].fixedTime > -1) {
+          end = sentences[j].fixedTime;
+          break;
+        }
+      }
+      // console.log(
+      //   "💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚💚"
+      // );
+      // console.log(sentences[i]);
+      // console.log(charTotal, start, end);
+    }
+    if (sentences[i].text != "$break$") {
+      charSoFar += sentences[i].text.length;
+      // console.log(charSoFar, i, sentences[i].text);
+    }
+    // console.log(sentences[i]);
+    // console.log(
+    //   charSoFar,
+    //   charTotal,
+    //   start,
+    //   end,
+    //   Math.round(((charSoFar / charTotal) * (end - start) + start) * 10) / 10
+    // );
+
+    if (
+      Math.round(((charSoFar / charTotal) * (end - start) + start) * 10) / 10
+    ) {
+      stamps.push(
+        Math.round(((charSoFar / charTotal) * (end - start) + start) * 10) / 10
+      );
+    } else stamps.push(0);
+
+    if (i > 0) {
+      finalArray[i - 1] = {
+        ...sentences[i - 1],
+        guessStamp: [stamps[i - 1], stamps[i]],
+        guessStampString: JSON.stringify([stamps[i - 1], stamps[i]]),
+        charSoFar,
+        charTotal,
+      };
+    }
+  }
+
+  finalArray[sentences.length - 1] = {
+    ...sentences[sentences.length - 1],
+    guessStamp: [stamps[sentences.length - 2], stamps[sentences.length - 1]],
+    guessStampString: JSON.stringify([
+      stamps[sentences.length - 2],
+      stamps[sentences.length - 1],
+    ]),
+  };
+
+  // console.table(finalArray);
+  // console.table(sentences);
+
+  return finalArray;
+}
+
+export function Transcript3({
+  sentences,
+  text,
+  getCurrentTime,
+  setCurrentTime,
+}) {
   // const sentences = cleanText(text);
 
   // for (const file of files) {
@@ -150,43 +306,33 @@ export function Transcript3({ postData, allPostsData, getCurrentTime }) {
 
   // postData.id;
 
-  // search allPostsData to find matching JSON file
-  console.log(postData.id);
-  console.log(
-    allPostsData.find(
-      (item) =>
-        item.type === "json" &&
-        item.id.replace(/.json/, "") === postData.id &&
-        postData
-    )
+  const [genSentences, setGenSentences] = useState(
+    generateTimeStamps(sentences)
   );
-  console.log(allPostsData);
-  console.log(postData);
-
-  const sentences = [
-    { text: "", index: 0, guessStamp: 1 },
-    { text: "$break$", index: 1, guessStamp: 2 },
-    { text: "0:00 ", index: 2, guessStamp: 5 },
-  ];
 
   return (
     <>
       <div>
-        {JSON.stringify(allPostsData)}
-        {sentences.map((item) =>
+        {/* {JSON.stringify(genSentences)} */}
+        JSON FILE EXISTS
+        {genSentences.map((item) =>
           item.text == "$break$" ? (
             <p></p>
           ) : getCurrentTime > item.guessStamp[0] &&
             getCurrentTime < item.guessStamp[1] ? (
             <Sentence
               color="red"
-              item={item}
+              senData={item}
               child={[item.guessStamp[0], getCurrentTime]}
             />
           ) : (
             <Sentence
+              setGenSentences={setGenSentences}
+              genSentences={genSentences}
+              getCurrentTime={getCurrentTime}
+              setCurrentTime={setCurrentTime}
               color="black"
-              item={item}
+              senData={item}
               child={[item.guessStamp[0], getCurrentTime]}
             />
           )
@@ -196,22 +342,75 @@ export function Transcript3({ postData, allPostsData, getCurrentTime }) {
   );
 }
 
-export function Sentence({ item, color }) {
+export function Sentence({
+  senData,
+  color,
+  getCurrentTime,
+  setCurrentTime,
+  setGenSentences,
+  genSentences,
+}) {
+  function clickHandlerSentences(e, senData) {
+    if (e.metaKey) {
+      updateSentences(senData);
+    } else {
+      skipToTime(senData);
+    }
+  }
+
+  function updateSentences(senData) {
+    // setGenSentences(genSentences[senData.id].fixedtime);
+    // setGenSentences(
+    // console.log(senData.index);
+
+    try {
+      let temp = genSentences.map((item) =>
+        item.index === senData.index
+          ? { ...item, fixedTime: getCurrentTime }
+          : item
+      );
+      console.log(genSentences[senData.index]);
+      setGenSentences(temp);
+      // console.log("set time as ");
+      // console.log(temp[senData.index]);
+      console.table(temp);
+    } catch (e) {
+      console.log("didnt set fixed time eyo");
+      //add a replay thing here maybe
+    }
+  }
+
+  function skipToTime(senData) {
+    let timeToGo =
+      senData.guessStamp[0] + Math.round(Math.random() * 100) / 10000;
+    try {
+      console.table(genSentences.slice(20, 40));
+      setCurrentTime(timeToGo);
+      console.log("jumping to " + timeToGo);
+    } catch (e) {
+      console.log("clicking too fast amigo.");
+      //add a replay thing here maybe
+    }
+  }
+
   return (
-    <span
+    <p
+      onClick={(e) => clickHandlerSentences(e, senData)}
       style={{ color: color }}
-      guessstamp={item.guessStamp}
-      key={item.index}
-      id={item.index}
+      guessstamp={senData.guessStamp[1]}
+      key={senData.index}
+      id={senData.index}
     >
-      {item.text}
-    </span>
+      {senData.text}
+      {senData.fixedTime ? `【${senData.fixedTime}】` : ""}
+      {JSON.stringify(senData.guessStamp)}
+    </p>
   );
 }
 
 export default function Post({ postData, allPostsData }) {
   const [getCurrentTime, setGetCurrentTime] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(14);
   return (
     <Layout>
       <Head>
@@ -238,15 +437,20 @@ export default function Post({ postData, allPostsData }) {
           <Date dateString={postData.date} />
         </div>
         {/* <Transcript text={postData.contentHtml} /> */}
-        <Transcript2
-          getCurrentTime={getCurrentTime}
-          text={postData.contentHtml}
-        />
-        <Transcript3
-          getCurrentTime={getCurrentTime}
-          allPostsData={allPostsData}
-          postData={postData}
-        />
+
+        {postData.transcriptExists ? (
+          <Transcript3
+            getCurrentTime={getCurrentTime}
+            setCurrentTime={setCurrentTime}
+            sentences={postData.sentences}
+            text={postData.contentHtml}
+          />
+        ) : (
+          <Transcript2
+            getCurrentTime={getCurrentTime}
+            text={postData.contentHtml}
+          />
+        )}
 
         {/* <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} /> */}
         {/* <div dangerouslySetInnerHTML={{ __html: transcriptData.text }} /> */}
