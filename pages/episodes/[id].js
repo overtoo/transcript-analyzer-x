@@ -142,6 +142,61 @@ export function Transcript2({ text, getCurrentTime }) {
 }
 
 function generateTimeStamps(sentences) {
+  // console.log(sentences);
+  const a = sentences;
+  const c = [];
+  let nextFixed;
+  let lastFixed;
+  let nextFixedIndex;
+  let lastFixedIndex;
+  let charAccum;
+  let charTotal;
+
+  for (let i = 0; i < a.length; i++) {
+    c[i] = a[i];
+    c[i].length = a[i].text.length;
+    // c[i].text = a[i].text;
+    if (a[i].fixedTime > -1) {
+      lastFixed = a[i].fixedTime;
+      lastFixedIndex = i;
+      charAccum = 0;
+    }
+    charAccum += c[i].length;
+    c[i].lastFixed = lastFixed;
+    c[i].charAccum = charAccum;
+  }
+  for (let i = a.length - 1; i > -1; i--) {
+    if (i == a.length - 1) {
+      nextFixed = a[i].fixedTime;
+      nextFixedIndex = i;
+    }
+    if (a[i].fixedTime > -1) {
+      c[i].nextFixed = nextFixed;
+      c[i].nextFixedIndex = nextFixedIndex;
+      nextFixed = a[i].fixedTime;
+      nextFixedIndex = i;
+      // charTotal = c[i].charAccum;
+    } else {
+      c[i].nextFixed = nextFixed;
+      c[i].nextFixedIndex = nextFixedIndex;
+    }
+    //   c[i].charTotal = c[nextFixedIndex - 1].charAccum;
+    c[i].charTotal = c[c[i].nextFixedIndex - 1].charAccum;
+    c[i].start =
+      ((c[i].charAccum - c[i].length) / c[i].charTotal) *
+        (c[i].nextFixed - c[i].lastFixed) +
+      c[i].lastFixed;
+    c[i].end =
+      (c[i].charAccum / c[i].charTotal) * (c[i].nextFixed - c[i].lastFixed) +
+      c[i].lastFixed;
+    c[i].guessStamp = [c[i].start, c[i].end];
+    c[i].guessStampString = JSON.stringify([c[i].start, c[i].end]);
+  }
+
+  return c;
+}
+
+function generateTimeStampsT(sentences) {
   // console.table(finalArray);
   let start = 0;
   let end;
@@ -309,6 +364,10 @@ export function Transcript3({
   const [genSentences, setGenSentences] = useState(
     generateTimeStamps(sentences)
   );
+
+  useEffect(() => {
+    console.table(genSentences);
+  }, [genSentences]);
 
   return (
     <>
